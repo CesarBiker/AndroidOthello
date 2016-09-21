@@ -36,7 +36,7 @@ public class CanvasView extends View {
         public void run() {
             testGame.update();
             invalidate();
-            timer.postDelayed(update, 500);
+            timer.postDelayed(update, 50);
         }
     };
 
@@ -46,7 +46,6 @@ public class CanvasView extends View {
             @Override
             public void onGlobalLayout() {
                 getViewTreeObserver().removeOnGlobalLayoutListener(this);//TODO: change
-                testGame.setDisplayHeight(getMeasuredHeight());
                 testGame.setDisplayWidth(getMeasuredWidth());
             }
         });
@@ -59,7 +58,9 @@ public class CanvasView extends View {
 
         float x = event.getRawX() - coord[0];
         float y = event.getRawY() - coord[1];
-        if(event.getAction() == MotionEvent.ACTION_DOWN)
+        if(event.getAction() == MotionEvent.ACTION_MOVE)
+            testGame.gameStarted = true;
+        else if(event.getAction() == MotionEvent.ACTION_DOWN)
             testGame.touch(x, y);
         return true;
     }
