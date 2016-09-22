@@ -2,19 +2,20 @@ package cesarbiker.xyz.othello;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.ViewTreeObserver;
 
 /**
  * Created by iam39418281 on 9/19/16.
  */
-public class CanvasView extends View {
+public class CanvasView extends SurfaceView {
+    SurfaceHolder surfaceHolder;
+
     Game testGame = new Game();
 
     @Override
@@ -27,6 +28,30 @@ public class CanvasView extends View {
     public CanvasView(Context context) {
         super(context);
         getViewSize();
+        //-- Init SurfaceView
+        surfaceHolder = getHolder();
+        surfaceHolder.addCallback(new SurfaceHolder.Callback2() {
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
+                Log.d("TEST","surfaceCreated()");
+            }
+
+            @Override
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+                Log.d("TEST","surfaceChanged()");
+            }
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
+                Log.d("TEST","surfaceDestroyed()");
+            }
+
+            @Override
+            public void surfaceRedrawNeeded(SurfaceHolder holder) {
+                Log.d("TEST","surfaceRedrawNeeded()");
+            }
+        });
+        //--
         update.run();
     }
 

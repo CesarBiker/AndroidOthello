@@ -9,25 +9,25 @@ import java.util.Arrays;
  * Created by iam39418281 on 9/20/16.
  */
 public class Board {
-    int[][] gameBoard = new int[8][8];
+    private Piece[][] gameBoard = new Piece[8][8];
 
     public Board() {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                gameBoard[i][j] = 0;
+                gameBoard[i][j] = new Piece(i, j);
             }
         }
-        gameBoard[3][3] = 1;
-        gameBoard[4][3] = 2;
-        gameBoard[3][4] = 2;
-        gameBoard[4][4] = 1;
+        gameBoard[3][3].setPlayer(1);
+        gameBoard[4][3].setPlayer(2);
+        gameBoard[3][4].setPlayer(2);
+        gameBoard[4][4].setPlayer(1);
     }
 
     public boolean addPiece(int x, int y, int player) {
         ArrayList<int[]> posToChange = new ArrayList<>();
 
         if (checkMove(x, y, player, posToChange)) {
-            gameBoard[x][y] = player;
+            gameBoard[x][y].setPlayer(player);
             changePieces(posToChange, player);
             return true;
         }
@@ -37,8 +37,30 @@ public class Board {
 
     public void changePieces(ArrayList<int[]> posToChange, int player) {
         for (int[] pos : posToChange) {
-            gameBoard[pos[0]][pos[1]] = player;
+            gameBoard[pos[0]][pos[1]].setPlayer(player);
         }
+    }
+
+    public void update() {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                gameBoard[i][j].update();
+            }
+        }
+    }
+
+    public Piece getPiece(int x, int y) {
+        //TODO: check errors
+        return gameBoard[x][y];
+    }
+
+    private int getPlayerFromField(int x, int y) {
+        return gameBoard[x][y].getPlayer();
+    }
+
+    public Piece getPieceFromCoord(float x, float y) {
+        //TODO: check errors
+        return gameBoard[(int)(x / Game.fieldWidth)][(int)(y / Game.fieldWidth)];
     }
 
     public boolean checkMove(int x, int y, int player, ArrayList<int[]> posToChange) {
@@ -50,88 +72,88 @@ public class Board {
 
         ArrayList<int[]> tmpPosToChange = new ArrayList<>();
 
-        if(yMinus && gameBoard[x][y - 1] == otherPlayer) {
+        if(yMinus && getPlayerFromField(x,y - 1)== otherPlayer) {
             for(int i = y - 1; i >= 0; i--) {
-                if(gameBoard[x][i] == otherPlayer)
+                if(getPlayerFromField(x,i) == otherPlayer)
                     tmpPosToChange.add(new int[]{x,i});
-                if(gameBoard[x][i] == player && tmpPosToChange.size() > 0) {
+                if(getPlayerFromField(x,i) == player && tmpPosToChange.size() > 0) {
                     posToChange.addAll(tmpPosToChange);
                     break;
                 }
             }
         }
-        if(yPlus && gameBoard[x][y + 1] == otherPlayer) {
+        if(yPlus && getPlayerFromField(x,y + 1) == otherPlayer) {
             tmpPosToChange.clear();
-            for (int i = y; i <= 7; i++) {
-                if(gameBoard[x][i] == otherPlayer)
+            for (int i = y + 1; i <= 7; i++) {
+                if(getPlayerFromField(x,i) == otherPlayer)
                     tmpPosToChange.add(new int[]{x,i});
-                if(gameBoard[x][i] == player && tmpPosToChange.size() > 0) {
+                if(getPlayerFromField(x,i)== player && tmpPosToChange.size() > 0) {
                     posToChange.addAll(tmpPosToChange);
                     break;
                 }
             }
         }
-        if(xMinus && gameBoard[x - 1][y] == otherPlayer) {
+        if(xMinus && getPlayerFromField(x - 1,y) == otherPlayer) {
             tmpPosToChange.clear();
             for (int i = x - 1; i >= 0; i--) {
-                if(gameBoard[i][y] == otherPlayer)
+                if(getPlayerFromField(i,y) == otherPlayer)
                     tmpPosToChange.add(new int[]{i,y});
-                if(gameBoard[i][y] == player && tmpPosToChange.size() > 0) {
+                if(getPlayerFromField(i,y) == player && tmpPosToChange.size() > 0) {
                     posToChange.addAll(tmpPosToChange);
                     break;
                 }
             }
         }
-        if(xPlus && gameBoard[x + 1][y] == otherPlayer) {
+        if(xPlus && getPlayerFromField(x + 1,y) == otherPlayer) {
             tmpPosToChange.clear();
             for (int i = x + 1; i <= 7 ; i++) {
-                if(gameBoard[i][y] == otherPlayer)
+                if(getPlayerFromField(i,y) == otherPlayer)
                     tmpPosToChange.add(new int[]{i,y});
-                if(gameBoard[i][y] == player && tmpPosToChange.size() > 0) {
+                if(getPlayerFromField(i,y) == player && tmpPosToChange.size() > 0) {
                     posToChange.addAll(tmpPosToChange);
                     break;
                 }
             }
         }
-        if(xPlus && yPlus && gameBoard[x + 1][y + 1] == otherPlayer) {
+        if(xPlus && yPlus && getPlayerFromField(x + 1, y + 1) == otherPlayer) {
             tmpPosToChange.clear();
             for (int i = x + 1, j = y + 1; i <= 7 && j <= 7; i++,j++) {
-                if(gameBoard[i][j] == otherPlayer)
+                if(getPlayerFromField(i,j) == otherPlayer)
                     tmpPosToChange.add(new int[]{i,j});
-                if(gameBoard[i][j] == player && tmpPosToChange.size() > 0) {
+                if(getPlayerFromField(i,j) == player && tmpPosToChange.size() > 0) {
                     posToChange.addAll(tmpPosToChange);
                     break;
                 }
             }
         }
-        if(xPlus && yMinus && gameBoard[x + 1][y - 1] == otherPlayer) {
+        if(xPlus && yMinus && getPlayerFromField(x + 1, y - 1) == otherPlayer) {
             tmpPosToChange.clear();
             for (int i = x + 1, j = y - 1; i <= 7 && j >= 0; i++,j--) {
-                if(gameBoard[i][j] == otherPlayer)
+                if(getPlayerFromField(i,j) == otherPlayer)
                     tmpPosToChange.add(new int[]{i,j});
-                if(gameBoard[i][j] == player && tmpPosToChange.size() > 0) {
+                if(getPlayerFromField(i,j) == player && tmpPosToChange.size() > 0) {
                     posToChange.addAll(tmpPosToChange);
                     break;
                 }
             }
         }
-        if(xMinus && yMinus && gameBoard[x - 1][y - 1] == otherPlayer) {
+        if(xMinus && yMinus && getPlayerFromField(x - 1, y - 1) == otherPlayer) {
             tmpPosToChange.clear();
             for (int i = x - 1, j = y - 1; i >= 0 && j >= 0; i--,j--) {
-                if(gameBoard[i][j] == otherPlayer)
+                if(getPlayerFromField(i,j) == otherPlayer)
                     tmpPosToChange.add(new int[]{i,j});
-                if(gameBoard[i][j] == player && tmpPosToChange.size() > 0) {
+                if(getPlayerFromField(i,j) == player && tmpPosToChange.size() > 0) {
                     posToChange.addAll(tmpPosToChange);
                     break;
                 }
             }
         }
-        if(xMinus && yPlus && gameBoard[x - 1][y + 1] == otherPlayer) {
+        if(xMinus && yPlus && getPlayerFromField(x - 1,y + 1) == otherPlayer) {
             tmpPosToChange.clear();
             for (int i = x - 1, j = y + 1; i >= 0 && j <= 7; i--,j++) {
-                if(gameBoard[i][j] == otherPlayer)
+                if(getPlayerFromField(i,j) == otherPlayer)
                     tmpPosToChange.add(new int[]{i,j});
-                if(gameBoard[i][j] == player && tmpPosToChange.size() > 0) {
+                if(getPlayerFromField(i,j)== player && tmpPosToChange.size() > 0) {
                     posToChange.addAll(tmpPosToChange);
                     break;
                 }
@@ -140,6 +162,7 @@ public class Board {
         Log.d("TEST", Arrays.deepToString(posToChange.toArray()));
         return posToChange.size() > 0;
     }
+
 
     public void debugBoard() {
         StringBuilder str = new StringBuilder();
