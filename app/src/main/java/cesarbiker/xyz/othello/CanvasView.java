@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -16,23 +17,44 @@ import android.view.ViewTreeObserver;
 public class CanvasView extends SurfaceView {
     SurfaceHolder surfaceHolder;
 
+    Canvas testCanvas;
+    SurfaceHolder testHolder;
+
     Game testGame = new Game();
 
-    @Override
+    /*@Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         testGame.setCanvas(canvas);
         testGame.render();
-    }
+    }*/
 
     public CanvasView(Context context) {
         super(context);
+        init();
+    }
+
+    public CanvasView(Context context, AttributeSet attributeSet) {
+        super(context, attributeSet);
+        init();
+    }
+
+    public CanvasView(Context context, AttributeSet attributeSet, int defStyle) {
+        super(context, attributeSet, defStyle);
+        init();
+    }
+
+    public void init() {
         getViewSize();
         //-- Init SurfaceView
         surfaceHolder = getHolder();
         surfaceHolder.addCallback(new SurfaceHolder.Callback2() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
+                testHolder = holder;
+                testCanvas = testHolder.lockCanvas(null);
+                testGame.setCanvas(testCanvas);
+                testHolder.unlockCanvasAndPost(testCanvas);
                 Log.d("TEST","surfaceCreated()");
             }
 
@@ -59,8 +81,14 @@ public class CanvasView extends SurfaceView {
     Runnable update = new Runnable() {
         @Override
         public void run() {
-            testGame.update();
-            invalidate();
+            if (testCanvas != null) {
+                testCanvas = testHolder.lockCanvas(null);
+                testGame.setCanvas(testCanvas);
+                testGame.update();
+                testHolder.unlockCanvasAndPost(testCanvas);
+                //invalidate();
+            }
+
             timer.postDelayed(update, 50);
         }
     };

@@ -18,12 +18,11 @@
         android:layout_marginBottom="48dp"
         android:id="@+id/textView" />
 
-    <SurfaceView
+    <cesarbiker.xyz.othello.CanvasView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/surfaceView"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/surfaceView2" />
+
 </RelativeLayout>
