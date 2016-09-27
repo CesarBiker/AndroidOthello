@@ -6,8 +6,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Created by iam39418281 on 9/20/16.
- */
+ * Copyright 2016 Àngel Mariages <angel[dot]mariages[at]gmail[dot]com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ **/
 public class Board {
     private Piece[][] gameBoard = new Piece[8][8];
 
@@ -29,9 +44,7 @@ public class Board {
         if(player == 3 || player == 0) {
             gameBoard[x][y].setPlayer(player);
             return true;
-        }
-
-        if (checkMove(x, y, player, posToChange)) {
+        } else if (checkMove(x, y, player, posToChange)) {
             gameBoard[x][y].setPlayer(player);
             changePieces(posToChange, player);
             return true;
@@ -168,7 +181,7 @@ public class Board {
                 }
             }
         }
-        Log.d("TEST", Arrays.deepToString(posToChange.toArray()));
+        Log.d("TEST", "PiecesToChange: " + Arrays.deepToString(posToChange.toArray()));
         return posToChange.size() > 0;
     }
 
@@ -182,5 +195,18 @@ public class Board {
             str.append("\n");
         }
         Log.d("TEST", str.toString());
+    }
+
+    public void bestMove() {
+
+    }
+
+    public void playerHasMoves(int currentPlayer) {
+        int x = 2, y = 2;
+        int currentWidth = 4;
+        //currentWidth + x?
+        for (int i = 0; i < ; i++) {
+
+        }
     }
 }
