@@ -1,5 +1,7 @@
 package cesarbiker.xyz.othello;
 
+import android.util.Log;
+
 import java.util.Random;
 
 /**
@@ -13,12 +15,18 @@ public class Piece {
     private float angle = 0f;
     private float sumAngle = 0f;
     private int x = -1, y = -1;
+    private boolean wrong;
+    private int sumTime;
+    public boolean draw = true;
 
     public Piece(int x, int y) {
         Random random = new Random();
         this.x = x;
         this.y = y;
-        sumAngle = random.nextFloat() * 30f + 20f;
+        //sumAngle = random.nextFloat() * 30f + 20f;
+        sumAngle = 30;
+        if(Game.animationSpeed != 0)
+            sumAngle = sumAngle / Game.animationSpeed;
     }
 
     public int[] getField() {
@@ -35,6 +43,11 @@ public class Piece {
             isChanged = true;
             animate = true;
             angle = 0f;
+            wrong = false;
+        }
+        else if(player == 3 || player == 0) {
+            this.player = player;
+            wrong = true;
         }
     }
 
@@ -57,6 +70,15 @@ public class Piece {
                 animate = false;
                 isChanged = false;
             }
+        if(wrong) {
+            sumTime++;
+            if(sumTime > 4)
+                draw = false;
+            if(sumTime > 8) {
+                draw = true;
+                sumTime = 0;
+            }
+        }
     }
 
     public float getAngle() {

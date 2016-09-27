@@ -5,90 +5,50 @@ import android.graphics.Canvas;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+import android.view.View;
 import android.view.ViewTreeObserver;
 
 /**
  * Created by iam39418281 on 9/19/16.
  */
-public class CanvasView extends SurfaceView {
-    SurfaceHolder surfaceHolder;
+public class CanvasView extends View {
+    private Game currentGame;
 
-    Canvas testCanvas;
-    SurfaceHolder testHolder;
+    public CanvasView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        currentGame = new Game(context);
+        getViewSize();
+        update.run();
+    }
 
-    Game testGame = new Game();
-
-    /*@Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        testGame.setCanvas(canvas);
-        testGame.render();
-    }*/
+    public CanvasView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        currentGame = new Game(context);
+        getViewSize();
+        update.run();
+    }
 
     public CanvasView(Context context) {
         super(context);
-        init();
-    }
-
-    public CanvasView(Context context, AttributeSet attributeSet) {
-        super(context, attributeSet);
-        init();
-    }
-
-    public CanvasView(Context context, AttributeSet attributeSet, int defStyle) {
-        super(context, attributeSet, defStyle);
-        init();
-    }
-
-    public void init() {
+        currentGame = new Game(context);
         getViewSize();
-        //-- Init SurfaceView
-        surfaceHolder = getHolder();
-        surfaceHolder.addCallback(new SurfaceHolder.Callback2() {
-            @Override
-            public void surfaceCreated(SurfaceHolder holder) {
-                testHolder = holder;
-                testCanvas = testHolder.lockCanvas(null);
-                testGame.setCanvas(testCanvas);
-                testHolder.unlockCanvasAndPost(testCanvas);
-                Log.d("TEST","surfaceCreated()");
-            }
-
-            @Override
-            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-                Log.d("TEST","surfaceChanged()");
-            }
-
-            @Override
-            public void surfaceDestroyed(SurfaceHolder holder) {
-                Log.d("TEST","surfaceDestroyed()");
-            }
-
-            @Override
-            public void surfaceRedrawNeeded(SurfaceHolder holder) {
-                Log.d("TEST","surfaceRedrawNeeded()");
-            }
-        });
-        //--
         update.run();
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        currentGame.setCanvas(canvas);
+        currentGame.render();
     }
 
     Handler timer = new Handler(Looper.getMainLooper());
     Runnable update = new Runnable() {
         @Override
         public void run() {
-            if (testCanvas != null) {
-                testCanvas = testHolder.lockCanvas(null);
-                testGame.setCanvas(testCanvas);
-                testGame.update();
-                testHolder.unlockCanvasAndPost(testCanvas);
-                //invalidate();
-            }
-
+            currentGame.update();
+            invalidate();
             timer.postDelayed(update, 50);
         }
     };
@@ -99,7 +59,7 @@ public class CanvasView extends SurfaceView {
             @Override
             public void onGlobalLayout() {
                 getViewTreeObserver().removeOnGlobalLayoutListener(this);//TODO: change
-                testGame.setDisplayWidth(getMeasuredWidth());
+                currentGame.setDisplayWidth(getMeasuredWidth());
             }
         });
     }
@@ -111,10 +71,21 @@ public class CanvasView extends SurfaceView {
 
         float x = event.getRawX() - coord[0];
         float y = event.getRawY() - coord[1];
-        if(event.getAction() == MotionEvent.ACTION_MOVE)
-            testGame.gameStarted = true;
-        else if(event.getAction() == MotionEvent.ACTION_DOWN)
-            testGame.touch(x, y);
+        if(event.getAction() == MotionEvent.ACTION_DOWN)
+            currentGame.touch(x, y);
         return true;
+    }
+
+    public void reset() {
+        currentGame.reset();
+
+    }
+
+    public void changeMode() {
+
+    }
+
+    public void startGame() {
+        currentGame.gameStarted = true;
     }
 }

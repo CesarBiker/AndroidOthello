@@ -26,6 +26,11 @@ public class Board {
     public boolean addPiece(int x, int y, int player) {
         ArrayList<int[]> posToChange = new ArrayList<>();
 
+        if(player == 3 || player == 0) {
+            gameBoard[x][y].setPlayer(player);
+            return true;
+        }
+
         if (checkMove(x, y, player, posToChange)) {
             gameBoard[x][y].setPlayer(player);
             changePieces(posToChange, player);
@@ -60,7 +65,11 @@ public class Board {
 
     public Piece getPieceFromCoord(float x, float y) {
         //TODO: check errors
-        return gameBoard[(int)(x / Game.fieldWidth)][(int)(y / Game.fieldWidth)];
+        int i = (int)(x / Game.fieldWidth);
+        int j = (int)(y / Game.fieldWidth);
+        if(i >= 0 && i < 8 && j >= 0 && j < 8)
+            return gameBoard[i][j];
+        return null;
     }
 
     public boolean checkMove(int x, int y, int player, ArrayList<int[]> posToChange) {
@@ -168,7 +177,7 @@ public class Board {
         StringBuilder str = new StringBuilder();
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                str.append(gameBoard[j][i]).append(" - ");
+                str.append(gameBoard[j][i].getPlayer()).append(" - ");
             }
             str.append("\n");
         }
