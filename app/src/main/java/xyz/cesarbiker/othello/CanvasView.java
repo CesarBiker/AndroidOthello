@@ -1,5 +1,6 @@
-package cesarbiker.xyz.othello;
+package xyz.cesarbiker.othello;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Handler;
@@ -101,7 +102,8 @@ public class CanvasView extends View {
         gameMode = gameMode == 0 ? 1 : 0;
     }
 
-    public void startGame() {
+    public void startGame(Activity activity) {
+        currentGame.setMainActivity(activity);
         currentGame.gameStarted = true;
     }
 }

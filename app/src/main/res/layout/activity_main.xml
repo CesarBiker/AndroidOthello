@@ -5,9 +5,9 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context="cesarbiker.xyz.othello.MainActivity">
+    tools:context="xyz.cesarbiker.othello.MainActivity">
 
-    <cesarbiker.xyz.othello.CanvasView
+    <xyz.cesarbiker.othello.CanvasView
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         tools:layout_height="400dp"
@@ -33,6 +33,16 @@
             android:id="@+id/buttonChangeMode"
             android:layout_weight="1"
             android:onClick="buttonOnClick" />
+
     </LinearLayout>
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/countPiecesText"
+        android:layout_weight="1"
+        android:textAppearance="@android:style/TextAppearance.Material.Medium"
+        android:textAlignment="center" />
 
 </LinearLayout>

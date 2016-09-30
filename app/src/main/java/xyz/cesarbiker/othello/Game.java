@@ -1,5 +1,6 @@
-package cesarbiker.xyz.othello;
+package xyz.cesarbiker.othello;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -7,7 +8,10 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.Build;
 import android.provider.Settings;
-import android.util.Log;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
 
 /**
  * Copyright 2016 Àngel Mariages <angel[dot]mariages[at]gmail[dot]com>
@@ -28,6 +32,7 @@ import android.util.Log;
  * MA 02110-1301, USA.
  **/
 public class Game {
+    private final Context gContext;
     private Paint backgroundPaint = new Paint();
 
     private Paint linesPaint = new Paint();
@@ -51,8 +56,11 @@ public class Game {
     private Piece wrongPiece = null;
 
     public static float animationSpeed;
+    private Activity mainActivity;
+    static public TextView countText;
 
     public Game(Context context) {
+        gContext = context;
         linesPaint.setColor(Color.BLACK);
         linesPaint.setStrokeWidth(lineWidth);
         linesPaint.setAntiAlias(true);
@@ -111,7 +119,7 @@ public class Game {
                         currentPiece.setAnimate(true);
                     }
                     float outlineW = 6f;
-                    if(currentPiece.shouldAnimate()) {
+                    if(currentPiece.shouldAnimate() && !currentPiece.blink) {
                         RectF r = new RectF(coord[0] - radius, coord[1] - radius, coord[0] + radius, coord[1] + radius);
                         if(currentPlayer == 1) {
                             gCanvas.drawArc(r, 0, currentPiece.getAngle(), true, pPlayerB);
@@ -124,10 +132,10 @@ public class Game {
                             gCanvas.drawArc(r,0, currentPiece.getAngle(), true, pPlayerB);
                         }
                     } else {
-                        if (currentPlayer == 1) {
+                        if (currentPlayer == 1 && currentPiece.draw) {
                             gCanvas.drawCircle(coord[0], coord[1], radius, pPlayerB);
                             gCanvas.drawCircle(coord[0], coord[1], radius - outlineW, pPlayerW);
-                        } else if (currentPlayer == 2) {
+                        } else if (currentPlayer == 2 && currentPiece.draw) {
                             gCanvas.drawCircle(coord[0], coord[1], radius, pPlayerB);
                         } else if(currentPlayer == 3 && currentPiece.draw) {
                             gCanvas.drawCircle(coord[0], coord[1], radius, pPlayerB);
@@ -141,63 +149,123 @@ public class Game {
 
     public void touch(float x, float y) {
         if(gameStarted) {
-            int field[];
             Piece currentPiece = currentBoard.getPieceFromCoord(x,y);
+
             if(currentPiece != null) {
                 if(currentPiece.getPlayer() == 0) {
-                    field = currentPiece.getField();
+                    if(gameMode == 0) {// - Singleplayer
+                        touchMultiplayer(currentPiece);
+                    } else if(gameMode == 1) {//- Multiplayer
+                        touchSinglePlayer(currentPiece);
+                    }
+                    //TODO: remove this
+                    countText.setText("Blanques: " + currentBoard.countPieces[0] + " - Negres:" + currentBoard.countPieces[1]);
+                }
+            }
+        }
+    }
 
-                    if(gameMode == 0) {
-                        if (currentPlayer == 1) {
-                            if (currentBoard.addPiece(field[0], field[1], 1)) {
-                                currentPlayer = 2;
-                                if (wrongPiece != null) {
-                                    deleteWrongPiece();
-                                }
-                                currentBoard.playerHasMoves(currentPlayer);
-                            } else {
-                                currentBoard.addPiece(field[0], field[1], 3);
-                                if (wrongPiece == null)
-                                    wrongPiece = currentPiece;
-                                else {
-                                    deleteWrongPiece();
-                                    wrongPiece = currentPiece;
-                                }
-                            }
-                        } else {
-                            if (currentBoard.addPiece(field[0], field[1], 2)) {
-                                currentPlayer = 1;
-                                if (wrongPiece != null) {
-                                    deleteWrongPiece();
-                                }
-                            } else {
-                                currentBoard.addPiece(field[0], field[1], 3);
-                                if (wrongPiece == null)
-                                    wrongPiece = currentPiece;
-                                else {
-                                    deleteWrongPiece();
-                                    wrongPiece = currentPiece;
-                                }
-                            }
+    private void touchSinglePlayer(Piece currentPiece) {
+        int bestMove;
+        int[] field = currentPiece.getField();
+        ArrayList<int[]> moves = new ArrayList<>();
+
+        if(currentPlayer == 1) {
+            if(currentBoard.addPiece(field[0], field[1], 1, false)) {
+                if(wrongPiece != null)
+                    deleteWrongPiece();
+
+                while(!currentBoard.playerHasMoves(1,moves)) {
+                    if(currentBoard.playerHasMoves(2,moves)) {
+                        bestMove = currentBoard.bestMove(moves);
+                        if(bestMove != -1) {
+                            currentBoard.addPiece(moves.get(bestMove)[0], moves.get(bestMove)[1], 2, true);
                         }
-                    } else if(gameMode == 1) {
-                        if(currentPlayer == 1) {
-                            if(currentBoard.addPiece(field[0], field[1], 1)) {
-                                if(wrongPiece != null) {
-                                    deleteWrongPiece();
-                                }
-                                currentBoard.bestMove();
+                    } else {
+                        //TODO: strings
+                        Toast.makeText(gContext.getApplicationContext(), "Les negres no tenen lloc on tirar!", Toast.LENGTH_LONG).show();
+                        if(!currentBoard.playerHasMoves(1, moves)) {
+                            if(currentBoard.countPieces[0] > currentBoard.countPieces[1]) {
+                                Toast.makeText(gContext.getApplicationContext(), "Guanyen les blanques!!", Toast.LENGTH_LONG).show();
+                            } else if(currentBoard.countPieces[0] < currentBoard.countPieces[1]) {
+                                Toast.makeText(gContext.getApplicationContext(), "Guanyen les negres!!", Toast.LENGTH_LONG).show();
                             } else {
-                                currentBoard.addPiece(field[0], field[1], 3);
-                                if (wrongPiece == null)
-                                    wrongPiece = currentPiece;
-                                else {
-                                    deleteWrongPiece();
-                                    wrongPiece = currentPiece;
-                                }
+                                Toast.makeText(gContext.getApplicationContext(), "Taules!", Toast.LENGTH_LONG).show();
                             }
                         }
                     }
+                }
+
+                if(currentBoard.playerHasMoves(2,moves)) {
+                    bestMove = currentBoard.bestMove(moves);
+                    if(bestMove != -1) {
+                        currentBoard.addPiece(moves.get(bestMove)[0], moves.get(bestMove)[1], 2, true);
+                    }
+                } else {
+                    //TODO: strings
+                    Toast.makeText(gContext.getApplicationContext(), "Les negres no tenen lloc on tirar!", Toast.LENGTH_LONG).show();
+                    if(!currentBoard.playerHasMoves(1, moves)) {
+                        if(currentBoard.countPieces[0] > currentBoard.countPieces[1]) {
+                            Toast.makeText(gContext.getApplicationContext(), "Guanyen les blanques!!", Toast.LENGTH_LONG).show();
+                        } else if(currentBoard.countPieces[0] < currentBoard.countPieces[1]) {
+                            Toast.makeText(gContext.getApplicationContext(), "Guanyen les negres!!", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(gContext.getApplicationContext(), "Taules!", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+            } else {
+                currentBoard.addPiece(field[0], field[1], 3, false);
+                if (wrongPiece == null)
+                    wrongPiece = currentPiece;
+                else {
+                    deleteWrongPiece();
+                    wrongPiece = currentPiece;
+                }
+            }
+        }
+    }
+
+    private void touchMultiplayer(Piece currentPiece) {
+        int[] field = currentPiece.getField();
+        ArrayList<int[]> moves = new ArrayList<>();
+
+        if (currentPlayer == 1) {
+            if (currentBoard.addPiece(field[0], field[1], 1, false)) {
+                currentPlayer = 2;
+                if (wrongPiece != null) {
+                    deleteWrongPiece();
+                }
+                if(!currentBoard.playerHasMoves(currentPlayer, moves)) {
+                    Toast.makeText(gContext.getApplicationContext(), "Les negres no poden tirar!", Toast.LENGTH_LONG).show();
+                    currentPlayer = 1;
+                }
+            } else {
+                currentBoard.addPiece(field[0], field[1], 3, false);
+                if (wrongPiece == null)
+                    wrongPiece = currentPiece;
+                else {
+                    deleteWrongPiece();
+                    wrongPiece = currentPiece;
+                }
+            }
+        } else {
+            if (currentBoard.addPiece(field[0], field[1], 2, false)) {
+                currentPlayer = 1;
+                if (wrongPiece != null) {
+                    deleteWrongPiece();
+                }
+                if(!currentBoard.playerHasMoves(currentPlayer, moves)) {
+                    Toast.makeText(gContext.getApplicationContext(), "Les blanques no poden tirar!", Toast.LENGTH_LONG).show();
+                    currentPlayer = 2;
+                }
+            } else {
+                currentBoard.addPiece(field[0], field[1], 3, false);
+                if (wrongPiece == null)
+                    wrongPiece = currentPiece;
+                else {
+                    deleteWrongPiece();
+                    wrongPiece = currentPiece;
                 }
             }
         }
@@ -205,7 +273,7 @@ public class Game {
 
     private void deleteWrongPiece() {
         int wField[] = wrongPiece.getField();
-        currentBoard.addPiece(wField[0], wField[1], 0);
+        currentBoard.addPiece(wField[0], wField[1], 0, false);
         wrongPiece = null;
     }
 
@@ -228,5 +296,10 @@ public class Game {
     public void changeMode() {
         gameMode = gameMode == 0 ? 1 : 0;
         reset();
+    }
+
+    public void setMainActivity(Activity mainActivity) {
+        this.mainActivity = mainActivity;
+        countText = (TextView) mainActivity.findViewById(R.id.countPiecesText);
     }
 }

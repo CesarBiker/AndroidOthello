@@ -1,6 +1,4 @@
-package cesarbiker.xyz.othello;
-
-import android.util.Log;
+package xyz.cesarbiker.othello;
 
 import java.util.Random;
 
@@ -33,12 +31,11 @@ public class Piece {
     private boolean wrong;
     private int sumTime;
     public boolean draw = true;
+    public boolean blink = false;
 
     public Piece(int x, int y) {
-        Random random = new Random();
         this.x = x;
         this.y = y;
-        //sumAngle = random.nextFloat() * 30f + 20f;
         sumAngle = 30;
         if(Game.animationSpeed != 0)
             sumAngle = sumAngle / Game.animationSpeed;
@@ -73,19 +70,14 @@ public class Piece {
         return center;
     }
 
-    public void setCenter(float[] center) {
-        if(center[0] >= 0 && center[0] <= Game.displayWidth && center[1] >= 0 && center[1] <= Game.displayWidth)
-            this.center = center;
-    }
-
     public void update() {
-        if(animate)
+        if(animate) {
             angle += sumAngle;
-            if(angle >= 360f) {
+            if (angle >= 360f) {
                 animate = false;
                 isChanged = false;
             }
-        if(wrong) {
+        } else if(wrong) {
             sumTime++;
             if(sumTime > 4)
                 draw = false;
@@ -93,7 +85,18 @@ public class Piece {
                 draw = true;
                 sumTime = 0;
             }
+        } else if(blink) {
+            sumTime++;
+            draw = sumTime % 4 != 0;
+            if(sumTime > 16)
+                blink = false;
+        } else {
+            draw = true;
         }
+    }
+
+    public void blink() {
+        blink = true;
     }
 
     public float getAngle() {
